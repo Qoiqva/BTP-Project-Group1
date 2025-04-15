@@ -1,0 +1,27 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <h1>Reschedule Order</h1>
+  <p>Tracking Number: {{ order.tracking_no }}</p>
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="mb-3">
+      <label for="delivery_date" class="form-label">New Delivery Date:</label>
+      {{ form.delivery_date }}
+    </div>
+
+    <div class="mb-3">
+      <label for="delivery_timeslot" class="form-label"
+        >Preferred Time Slot:</label
+      >
+      {{ form.delivery_timeslot }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Reschedule</button>
+    <a href="{% url 'core:order-detail' order.slug %}" class="btn btn-secondary"
+      >Cancel</a
+    >
+  </form>
+</div>
+{% endblock %}

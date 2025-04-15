@@ -1,0 +1,11 @@
+asgiref==3.8.1
+autopep8==1.4.4
+Django==5.1.7
+django-allauth==65.6.0
+pep8==1.7.1
+pycodestyle==2.5.0
+pytz==2018.5
+setuptools==75.8.0
+sqlparse==0.5.3
+tzdata==2025.2
+wheel==0.45.1

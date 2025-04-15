@@ -1,0 +1,63 @@
+<nav
+  class="fixed-top navbar navbar-expand-lg navbar-light bg-light scrolling-navbar"
+>
+  <div class="container">
+    <a class="navbar-brand" href="/">GreenPie Market</a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-toggle="collapse"
+      data-target="#navbarText"
+      aria-controls="navbarText"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse justify-content-end" id="navbarText">
+      <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'core:account' %}">
+            <i class="fas fa-user-circle"></i>
+            {{user.username}}
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'core:order-summary' %}">
+            <!-- <span class="badge badge-danger mr-1">{{ cart_item_count }}</span> -->
+            <i class="fas fa-shopping-cart"></i>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'core:promotions' %}">
+            Special Offers
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'core:order-history' %}">
+            My Orders
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'account_logout' %}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'account_login' %}">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'account_signup' %}">SignUp</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

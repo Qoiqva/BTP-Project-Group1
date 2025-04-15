@@ -1,0 +1,110 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <h1>Order Tracking # : {{object.tracking_no}}</h1>
+  <br />
+
+  <div class="progress" style="height: 33px">
+    <div
+      class="progress-bar progress-bar-striped bg-success rounded-3"
+      role="progressbar"
+      style="width: 25%"
+      aria-valuenow="25"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <span class="h3 mt-2">{{ object.status }}</span>
+    </div>
+  </div>
+
+  <br />
+  <div class="row wow fadeIn">
+    <div class="col-md-6 mb-4">
+      <h2 class="align-text-center">Your cart</h2>
+      <ul class="list-group mb-3">
+        {% for order_item in object.items.all %}
+        <li class="list-group-item d-flex align-items-center">
+          <div
+            class="product-image-container me-3"
+            style="width: 50px; height: 50px; overflow: hidden; flex-shrink: 0"
+          >
+            <img
+              src="{{ order_item.item.image_url }}"
+              class="img-fluid h-100 w-auto"
+              alt="{{ order_item.item.name }}"
+              style="object-fit: cover"
+            />
+          </div>
+
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="my-0">
+                  {{ order_item.quantity }} x {{ order_item.item.name }}
+                </h6>
+                <small class="text-muted"
+                  >{{ order_item.item.get_category_display }}</small
+                >
+              </div>
+              <span class="text-muted ms-3"
+                >${{ order_item.get_final_price|floatformat:2  }}</span
+              >
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span>HST: </span>
+          <strong>${{ object.get_taxes|floatformat:2 }}</strong>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Total(CAD) : </span>
+          <strong>${{ object.get_final_price|floatformat:2 }}</strong>
+        </li>
+      </ul>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <h2>Order details</h2>
+      <ul class="list-group mb-3">
+        <li class="list-group-item d-flex justify-content-between">
+          <span><strong>Order ID:</strong></span
+          >{{ object.slug }}
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span><strong>Ordered:</strong></span
+          >{{ object.ordered_date }}
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span><strong>Address:</strong></span
+          >{{object.address.address1}}
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span><strong>Delivery Instructions:</strong></span
+          >{{object.address.delivery_instructions}}
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span><strong>Preferred Delivery Date:</strong></span
+          >{{ object.delivery_date }}
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span><strong>Preferred Time Slot:</strong></span
+          >{{ object.delivery_timeslot }}
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="order-actions mt-4">
+    <a href="{% url 'core:order-history' %}" class="btn btn-success"
+      >Back to Order History</a
+    >
+    {% if object.status == "Pending" %}
+    <a
+      href="{% url 'core:reschedule-order' object.slug %}"
+      class="btn btn-warning ms-2"
+    >
+      Reschedule
+    </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

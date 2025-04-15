@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .signup-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 90vh;
+        background-color: #f9fafb;
+    }
+
+    .signup-card {
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .signup-card h2 {
+        margin-bottom: 30px;
+        font-weight: 500;
+    }
+
+    .form-group {
+        text-align: left;
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        border: none;
+        border-bottom: 1px solid #ccc;
+        border-radius: 0;
+        padding: 10px;
+        width: 100%;
+        background: transparent;
+    }
+
+    .form-control:focus {
+        border-color: #0072ff;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(to right, #00c6ff, #0072ff);
+        border: none;
+        border-radius: 25px;
+        padding: 12px;
+        color: white;
+        font-weight: bold;
+        width: 100%;
+        transition: 0.3s;
+    }
+
+    .btn-gradient:hover {
+        background: linear-gradient(to right, #0072ff, #00c6ff);
+    }
+
+    .text-danger {
+        font-size: 0.875rem;
+        color: #dc3545;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="signup-wrapper">
+    <div class="signup-card">
+        <h2>Complete Your Profile</h2>
+        <form method="post">
+            {% csrf_token %}
+
+            {% for field in user_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% for field in profile_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn-gradient mt-3">Save</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

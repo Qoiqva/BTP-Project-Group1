@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .signup-container {
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+    }
+
+    .signup-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(to right, #00c6ff, #0072ff);
+        border: none;
+        color: white;
+        padding: 10px;
+        width: 100%;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: 0.3s;
+    }
+
+    .btn-gradient:hover {
+        background: linear-gradient(to right, #0072ff, #00c6ff);
+    }
+
+    .signup-footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.9rem;
+    }
+
+    input.form-control {
+        border: none;
+        border-bottom: 2px solid #ccc;
+        border-radius: 0;
+        margin-bottom: 25px;
+        box-shadow: none;
+    }
+
+    input.form-control:focus {
+        border-color: #0072ff;
+        outline: none;
+        box-shadow: none;
+    }
+</style>
+
+<div class="signup-container">
+    <div class="signup-card">
+        <h3 class="text-center mb-4">Create Account</h3>
+
+        <form method="POST" action="{% url 'account_signup' %}">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="text-danger mb-2">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn-gradient">Sign Up</button>
+        </form>
+
+        <div class="signup-footer">
+            Already have an account? <a href="{% url 'account_login' %}">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

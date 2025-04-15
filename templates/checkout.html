@@ -1,0 +1,461 @@
+{% extends "base.html" %} {% block content %}
+
+<main>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('delivery_date').setAttribute('min', today);
+    });
+
+    function submitBothForms(event) {
+      event.preventDefault();
+
+      let isValid = true;
+
+      // --- Payment Info Validation ---
+      const nameInput = document.getElementById('name_on_card');
+      const cardNumberInput = document.getElementById('card_number');
+      const expirationInput = document.getElementById('expiration');
+      const cvvInput = document.getElementById('cvv');
+
+      // Clear any previous invalid highlights
+      [nameInput, cardNumberInput, expirationInput, cvvInput].forEach(
+        (input) => {
+          input.classList.remove('is-invalid');
+        }
+      );
+
+      // Name on Card: non-empty
+      if (!nameInput.value.trim()) {
+        nameInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // Card Number: 16 digits
+      if (!/^\d{16}$/.test(cardNumberInput.value)) {
+        cardNumberInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // Expiration: MM/YY and not expired
+      const expPattern = /^(0[1-9]|1[0-2])\/?([0-9]{2})$/;
+      if (!expPattern.test(expirationInput.value)) {
+        expirationInput.classList.add('is-invalid');
+        isValid = false;
+      } else {
+        const [month, year] = expirationInput.value.split('/');
+        const expDate = new Date(`20${year}`, month);
+        const now = new Date();
+        if (expDate < now) {
+          expirationInput.classList.add('is-invalid');
+          isValid = false;
+        }
+      }
+
+      // CVV: 3 or 4 digits
+      if (!/^\d{3,4}$/.test(cvvInput.value)) {
+        cvvInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // --- Delivery Validation ---
+      const deliveryDateInput = document.getElementById('delivery_date');
+      const timeSlotInput = document.getElementById('delivery_timeslot');
+      const today = new Date().toISOString().split('T')[0];
+
+      deliveryDateInput.classList.remove('is-invalid');
+      timeSlotInput.classList.remove('is-invalid');
+
+      if (!deliveryDateInput.value || deliveryDateInput.value < today) {
+        deliveryDateInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      if (!timeSlotInput.value) {
+        timeSlotInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // --- Address Validation ---
+      const addressFields = [
+        'email',
+        'address1',
+        'country',
+        'state',
+        'zip_code',
+      ];
+
+      addressFields.forEach((id) => {
+        const input = document.getElementById(id);
+        input.classList.remove('is-invalid');
+
+        if (id === 'email') {
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailPattern.test(input.value)) {
+            input.classList.add('is-invalid');
+            isValid = false;
+          }
+        } else if (!input.value.trim()) {
+          input.classList.add('is-invalid');
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        return;
+      }
+
+      const form = document.getElementById('address_payment');
+
+      ['delivery_date', 'delivery_timeslot', 'delivery_instructions'].forEach(
+        (field) => {
+          const value = document.getElementById(field)?.value || '';
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = field;
+          input.value = value;
+          form.appendChild(input);
+        }
+      );
+
+      form.submit();
+    }
+  </script>
+
+  <main class="mt-5 pt-4">
+    <div class="container">
+      <h2 class="my-5 text-center">Checkout form</h2>
+
+      <div class="row">
+        <div class="col-md-8 mb-4">
+          <div class="card p-4">
+            <form
+              id="address_payment"
+              method="POST"
+              action="{% url 'core:checkout-page' %}"
+            >
+              {% csrf_token %}
+
+              <!--email-->
+              <div class="form-group rounded-3">
+                <label class="form-label" for="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control"
+                  required
+                />
+                <div class="invalid-feedback">
+                  Please enter a valid email address.
+                </div>
+              </div>
+              <br />
+              <!--address1-->
+              <div class="form-group rounded-3">
+                <label class="form-label" for="address1">Address</label>
+                <input
+                  type="text"
+                  id="address1"
+                  name="address1"
+                  class="form-control"
+                  required
+                />
+
+                <div class="invalid-feedback">Address is required.</div>
+              </div>
+              <br />
+              <!--address-2-->
+              <div class="form-group rounded-3">
+                <label class="form-label" for="address2"
+                  >Address 2 (optional)</label
+                >
+                <input
+                  type="text"
+                  id="address2"
+                  name="address2"
+                  class="form-control"
+                />
+              </div>
+              <br />
+              <div class="row">
+                <div class="col-lg-4 col-md-12 mb-4">
+                  <div class="form-group rounded-3">
+                    <label class="form-label" for="country">Country</label>
+                    <input
+                      type="text"
+                      id="country"
+                      name="country"
+                      class="form-control"
+                      required
+                    />
+
+                    <div class="invalid-feedback">Country is required.</div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12 mb-4">
+                  <div class="form-group rounded-3">
+                    <label class="form-label" for="state">State</label>
+                    <input
+                      type="text"
+                      id="state"
+                      name="state"
+                      class="form-control"
+                      required
+                    />
+
+                    <div class="invalid-feedback">State is required.</div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12 mb-4">
+                  <div class="form-group rounded-3">
+                    <label class="form-label" for="zip_code">Zip</label>
+                    <input
+                      type="text"
+                      id="zip_code"
+                      name="zip_code"
+                      class="form-control"
+                      required
+                    />
+
+                    <div class="invalid-feedback">Zip code is required.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!--Payment-->
+              <div class="my-3">
+                <div class="form-check">
+                  <label class="form-check-label" for="credit"
+                    >Credit card</label
+                  >
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="payment_type"
+                    id="credit"
+                    value="credit"
+                    checked
+                  />
+                </div>
+
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="payment_type"
+                    id="debit"
+                    value="debit"
+                  />
+                  <label class="form-check-label" for="debit">Debit card</label>
+                </div>
+              </div>
+              <br />
+              <div class="row mb-3">
+                <div class="col-lg-4 col-md-12 mb-4">
+                  <div class="form-group rounded-3">
+                    <label class="form-label" for="name_on_card"
+                      >Name on card</label
+                    >
+                    <input
+                      type="text"
+                      id="name_on_card"
+                      name="name_on_card"
+                      class="form-control"
+                      placeholder="John Doe"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Please enter the name on the card.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12 mb-4">
+                  <div class="form-group rounded-3">
+                    <label class="form-label" for="card_number"
+                      >Credit card number</label
+                    >
+                    <input
+                      type="text"
+                      id="card_number"
+                      name="card_number"
+                      class="form-control"
+                      required
+                      pattern="\d{16}"
+                      inputmode="numeric"
+                      maxlength="16"
+                      title="Enter a 16-digit card number"
+                      placeholder="1234 5678 9012 3456"
+                    />
+                    <div class="invalid-feedback">
+                      Please enter a valid 16-digit card number.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-lg-4 col-md-12 mb-4">
+                  <div class="form-group rounded-3">
+                    <label class="form-label" for="expiration"
+                      >Expiration</label
+                    >
+                    <input
+                      type="text"
+                      id="expiration"
+                      name="expiration"
+                      class="form-control"
+                      required
+                      pattern="(0[1-9]|1[0-2])\/?([0-9]{2})"
+                      title="Enter expiration date in MM/YY format"
+                      placeholder="MM/YY"
+                    />
+                    <div class="invalid-feedback">
+                    Please enter a valid expiration date.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-4 col-md-12 mb-4">
+                  <div class="form-group rounded-3">
+                    <label class="form-label" for="cvv">CVV</label>
+                    <input
+                      type="text"
+                      id="cvv"
+                      name="cvv"
+                      class="form-control"
+                      placeholder="123"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Please enter a valid 3- or 4-digit CVV.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <br />
+              <button
+                type="submit"
+                class="btn btn-primary btn-md my-0 p"
+                onclick="submitBothForms(event)"
+                id="order_button"
+              >
+                Place Order
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Your cart</span>
+            <span class="badge rounded-pill badge-primary"
+              >{{object.get_total_count}}</span
+            >
+          </h4>
+
+          <ul class="list-group mb-3">
+            {% for order_item in object.items.all %}
+            <li class="list-group-item d-flex justify-content-between">
+              <div>
+                <h6 class="my-0">
+                  {{ order_item.quantity }} x {{ order_item.item.name }}
+                </h6>
+                <small class="text-muted"
+                  >{{ order_item.item.get_category_display }}</small
+                >
+                {% for entry in applied_promotions %} 
+                {% if entry.item.id == order_item.item.id %}
+                <br />
+                <small class="text-success">
+                  Saved ${{entry.discount|floatformat:2 }}
+                  ({{entry.promotion.discount_rate }}% off)
+                </small>
+                {% endif %} 
+                {% endfor %}
+              </div>
+              <span class="text-muted"
+                >${{ order_item.get_final_price|floatformat:2 }}</span
+              >
+            </li>
+            {% endfor %}
+
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Subtotal (CAD)</span>
+              <strong>${{ object.get_total_cost }}</strong>
+            </li>
+
+            <li class="list-group-item d-flex justify-content-between">
+              <span>HST: </span>
+              <strong>${{ object.get_taxes|floatformat:2 }}</strong>
+            </li>
+
+            {% if applied_promotions %}
+            <li class="list-group-item d-flex justify-content-between">
+              <span>Total: </span>
+              <strong>${{ object.get_final_price|floatformat:2 }}</strong>
+            </li>
+            {% endif %}
+          </ul>
+          {% if applied_promotions %}
+          <h5 class="mt-3">Applied Promotions</h5>
+          <ul class="list-group mb-3">
+            {% for entry in applied_promotions %}
+            <li class="list-group-item">
+              <strong>{{ entry.item.name }}</strong> — {{entry.promotion.title}}
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          <!-- Delivery Date -->
+          <div class="form-group rounded-3 mt-4">
+            <label for="delivery_date">Preferred Delivery Date</label>
+            <input
+              type="date"
+              id="delivery_date"
+              name="delivery_date"
+              class="form-control"
+              required
+            />
+            <div class="invalid-feedback">Please choose a valid date.</div>
+          </div>
+          <br/>
+          <!-- Delivery Time Slot -->
+          <div class="form-group rounded-3 mt-3">
+            <label for="delivery_time_slot">Preferred Time Slot</label>
+            <select
+              id="delivery_timeslot"
+              name="delivery_timeslot"
+              class="form-control"
+              required
+            >
+              <option value="">-- Select a time slot --</option>
+              <option value="8 AM - 12 PM">Morning (8 AM - 12 PM)</option>
+              <option value="12 PM - 4 PM">Afternoon (12 PM - 4 PM)</option>
+              <option value="4 PM - 8 PM">Evening (4 PM - 8 PM)</option>
+            </select>
+            <div class="invalid-feedback">Please select a time slot.</div>
+          </div>
+          <br />
+          <div class="card p-4">
+            <div class="form-group">
+              <label for="delivery_instructions">Delivery Instructions</label>
+              <textarea
+                class="form-control"
+                id="delivery_instructions"
+                rows="7"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</main>
+
+{% endblock content %}

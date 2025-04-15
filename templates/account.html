@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">My Account</h2>
+
+    {% if edit_mode %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Personal Info</h5>
+                {{ user_form.as_p }}
+            </div>
+            <div class="col-md-6">
+                <h5>Contact Info</h5>
+                {{ profile_form.as_p }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+        <a href="{% url 'core:account' %}" class="btn btn-secondary mt-3">Cancel</a>
+    </form>
+
+    {% else %}
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Personal Info</h5>
+            <p><strong>First Name:</strong> {{ request.user.first_name }}</p>
+            <p><strong>Last Name:</strong> {{ request.user.last_name }}</p>
+            <p><strong>Email:</strong> {{ request.user.email }}</p>
+        </div>
+
+        <div class="col-md-6">
+            <h5>Contact Info</h5>
+            <p><strong>Address:</strong> {{ request.user.userprofile.address }}</p>
+            <p><strong>City:</strong> {{ request.user.userprofile.city }}</p>
+            <p><strong>Postal Code:</strong> {{ request.user.userprofile.postal_code }}</p>
+            <p><strong>Phone:</strong> {{ request.user.userprofile.phone }}</p>
+        </div>
+    </div>
+
+    <a href="{% url 'core:account' %}?edit=true" class="btn btn-primary mt-4">Edit</a>
+    <a href="{% url 'core:home' %}" class="btn btn-secondary mt-4">Back</a>
+    {% endif %}
+</div>
+{% endblock %}
